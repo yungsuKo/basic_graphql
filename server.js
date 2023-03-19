@@ -1,6 +1,6 @@
 import {ApolloServer, gql} from "apollo-server"
 
-const tweets = [
+let tweets = [
     {
         id: "1",
         text: "1hohohohhihihih",
@@ -15,7 +15,7 @@ const typeDefs = gql`
     # data의 shape을 지정하는 것.
     # rest api에서 GET /text등을 설정하는 것과 동일한 것임.
     type User {
-        id: ID!
+        userId: ID!
         username: String!
     }
     type Tweet {
@@ -30,7 +30,8 @@ const typeDefs = gql`
         # scalar 데이터 타입이란?
     }
     type Mutation {
-        postTweet(text: String, userID: ID): Tweet
+        postTweet(text: String, userId: ID): Tweet
+        deleteTweet(id: ID): Boolean!
     }
 `;
 const resolvers = {
@@ -46,6 +47,23 @@ const resolvers = {
         },
         ping() {
             console.log("ping")
+        }
+    },
+    Mutation:{
+        postTweet(root, {text, userId}){
+            const newTweet = {
+                id : tweets.length + 1,
+                text
+            }
+            tweets.push(newTweet);
+            console.log(tweets);
+            return newTweet;
+        },
+        deleteTweet(root,{id}){
+            const tweet = tweets.find((tweet)=> tweet.id===id);
+            if(!tweet) return false;
+            tweets = tweets.filter((tweet)=>tweet.id !== id)
+            return true;
         }
     }
 }
